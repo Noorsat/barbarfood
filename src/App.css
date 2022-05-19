@@ -1,0 +1,33 @@
+.App{
+    font-family: "gilroy";
+}
+.ant-modal-content {
+    border-radius: 16px!important;
+}
+
+.ant-modal-close-icon, .ant-modal-footer{
+    display: none!important;
+}
+.ant-modal-body{
+    padding:0!important;
+}
+::-webkit-scrollbar {
+    width: 0;  /* Remove scrollbar space */
+    background: transparent;  /* Optional: just make scrollbar invisible */
+}
+@media (max-width:980px){
+    .ant-modal{
+        width:90%!important;
+    }    
+}
+@media (max-width:750px){
+    .ant-modal{
+        margin:0!important;
+        max-width:100%!important;
+    }
+}
+@media (max-width:750px){
+    .ant-modal-content{
+        border-radius:0px!important;
+    }
+}
