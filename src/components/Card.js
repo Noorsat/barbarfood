@@ -455,7 +455,7 @@ const Card = ({product}) => {
             style={{top:58}}
         >
             <ConfirmText>
-                Added to your cart
+                ITCBootcamp
             </ConfirmText>
             <div className="arrow-up"></div>
         </ConfirmModal>
