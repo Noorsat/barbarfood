@@ -421,7 +421,7 @@ const Card = ({product}) => {
       };
 
     const handleConfirmModal= () => {
-        dispatch(addProduct({...product, counter: counter}))
+        dispatch(addProduct(product))
         setIsModalVisible(false);
         scroll.scrollToTop({
             duration: 100,
@@ -455,7 +455,7 @@ const Card = ({product}) => {
             style={{top:58}}
         >
             <ConfirmText>
-                ITCBootcamp
+                Added to your cart
             </ConfirmText>
             <div className="arrow-up"></div>
         </ConfirmModal>
