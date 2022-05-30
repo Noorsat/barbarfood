@@ -1,5 +1,6 @@
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 import styled from 'styled-components'
+import { getPromotions } from '../http/promotionsAPI'
 
 const Container = styled.div`
     max-width:1376px;
@@ -32,6 +33,14 @@ const Image = styled.img`
 `
 
 const News = ({images}) => {
+    const [promotions, setPromotions] = useState([]);
+    
+    useEffect(() => {
+        const promotions = getPromotions().then((res) => {
+            setPromotions(res.data.data);
+        })
+    }, [])
+
   return (
     <Container>
         <Title className='mb-4'>
@@ -39,8 +48,8 @@ const News = ({images}) => {
         </Title>
         <div className='d-flex flex-wrap' style={{position:"relative", left:-10}}>
         {
-            images.map(item => (
-               <Image src={item} width={460}/>     
+            promotions.results && promotions.results.map(item => (
+               <Image src={item.image} width={460}/>     
             ))
         }
         </div>

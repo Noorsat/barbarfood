@@ -5,8 +5,12 @@ import 'antd/dist/antd.css';
 import { NavLink } from 'react-router-dom';
 import * as Scroll from 'react-scroll';
 import { Link, Element, Events, animateScroll as scroll, scrollSpy, scroller } from 'react-scroll'
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addProduct, minusCounter, plusCounter } from '../redux/actions/basketActions';
+import { getItemDetails } from '../http/productsAPI';
+import { counterMinus, counterPlus } from '../redux/actions/productsActions';
+import { addToCart } from '../http/cartAPI';
+import { getToken } from '../http/userAPI';
 
 const CardSection = styled.div`
     max-width:308px;
@@ -366,52 +370,11 @@ const Card = ({product}) => {
 
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isConfirmModal, setConfirmModal] = useState(false);
+    const [additivesData, setAdditivesData] = useState([]);
 
-    const [counter, setCounter] = useState(product.counter)
+    const basket = useSelector(state => state.basket.basket)
 
-    const beveragesData = [
-        {
-            img:"images/cola.png",
-            title:"Coca Cola",
-            price: 4,
-            counter:1
-        },
-        {
-            img:"images/fanta.png",
-            title:"Fanta",
-            price: 4,
-            counter:1
-        },
-        {
-            img:"images/fanta.png",
-            title:"Fanta",
-            price: 4,
-            counter:1
-        },
-    ]
 
-    const appetizersData = [
-        {
-            img:"images/garlic.png",
-            title:"Garlic Sauce",
-            price: 5,
-            counter:1
-        },
-        {
-            img:"images/hummus.png",
-            title:"Hummus",
-            price: 12,
-            counter:1,
-            tag:"Very tasty"
-        },
-        {
-            img:"images/garlic.png",
-            title:"Garlic Sauce",
-            price: 5,
-            counter:1
-        },
-    ]
- 
     const handleOk = () => {
         setIsModalVisible(false);
       };
@@ -421,7 +384,33 @@ const Card = ({product}) => {
       };
 
     const handleConfirmModal= () => {
-        dispatch(addProduct(product))
+        //dispatch(addProduct(product))
+        try{
+        const addCart = addToCart(basket.uuid,
+            {
+            item_id:product.id,
+            count: product.counter
+            }    
+        ).then((res) => {
+            console.log(res);
+        })
+        } catch(e) {
+            console.log(e);
+        }
+        additivesData.offered_items.map(category => {
+            category.items.map(product => {
+                if (product.counter >= 1){
+                    const addCart = addToCart(basket.uuid, 
+                        {
+                            item_id: product.id,
+                            count: product.counter
+                        })
+                }
+            })
+        }) 
+        const token = getToken(basket.uuid).then((res) => {
+            console.log(res)
+        });
         setIsModalVisible(false);
         scroll.scrollToTop({
             duration: 100,
@@ -430,20 +419,58 @@ const Card = ({product}) => {
         window.screen.width <= 475 &&
             setTimeout(() => {
                 setConfirmModal(true)
-            }, 300)
+        }, 300)
+
     }   
     
     const closeConfirmModal = () => {
         setConfirmModal(false)
     }
 
-    const minusHandler = () => {
-        if (counter === 1){
+    const minusHandler = (id) => {
+        if (product.counter === 1){
             setIsModalVisible(false)
         }else{
-            setCounter(counter-1)
+            dispatch(counterMinus(id));
         }
     } 
+
+    const plusHandler = (id) => {
+        dispatch(counterPlus(id));
+    }
+
+    const openCardModal = (id) => {
+        setIsModalVisible(true)
+        const additives = getItemDetails(id).then((res) => {
+            setAdditivesData({...res.data.data, offered_items: res.data.data.offered_items.map(category => {
+                return {...category, items: category.items.map(product => {
+                    return {...product, counter:0}
+                })}
+            })});
+        });
+    }
+
+    const additiveCounterMinus = (id) => {
+        setAdditivesData({...additivesData, offered_items: additivesData.offered_items.map(category => {
+            return {...category, items: category.items.map(product => {
+                if (product.id === id && product.counter !== 1){
+                    product.counter = product.counter - 1;
+                }
+                return product;
+            })}
+        })})
+    }
+    
+    const additiveCounterPlus = (id) => {
+        setAdditivesData({...additivesData, offered_items: additivesData.offered_items.map(category => {
+            return {...category, items: category.items.map(product => {
+                if (product.id === id){
+                    product.counter = product.counter + 1;
+                }
+                return product;
+            })}
+        })})
+    }
 
   return (
       <>
@@ -468,7 +495,7 @@ const Card = ({product}) => {
             onCancel={handleCancel}
 
         >
-            <Wrapper style={{height:859}} className="d-flex">
+            <Wrapper className="d-flex">
                 <ImageDiv style={{marginTop:29,marginLeft:36, marginRight:36}}>
                     {
                         window.screen.width <= 475 ?
@@ -477,18 +504,18 @@ const Card = ({product}) => {
                                     <img src="images/return.svg"/>
                                 </div>
                                 <div>
-                                    <img src={product.img} width={355}/>    
+                                    <img src={product.image} width={355}/>    
                                 </div>
                                 <div style={{position:"absolute",right:20, top:46}}>
                                     <NavLink to="/basket"><img src="images/red-cart.png"/></NavLink>
                                 </div>
                             </div>                        
-                        : <img src={product.img} width={375}/>    
+                        : <img src={product.image} width={375}/>    
 
                     }
                     
                 </ImageDiv>
-                <ModalContent style={{width:528,background: "rgba(241, 242, 244, 0.2)", paddingTop:20, paddingLeft:24, paddingRight:24 }}>
+                <ModalContent style={{width:528,background: "rgba(241, 242, 244, 0.2)", paddingTop:20, paddingLeft:24, paddingRight:24, paddingBottom:20}}>
                     {
                         window.screen.width <= 475 ? 
                         <>
@@ -519,81 +546,52 @@ const Card = ({product}) => {
                     <ModalDescr>
                         {product.fullDescription}
                     </ModalDescr>
-                    <div style={{marginBottom:20}}>
-                        <ModalAdditivesTitle>
-                            Do you want to add beverages? 
-                        </ModalAdditivesTitle>
-                        <AddiviteSection className='d-flex justify-content-between'>
-                            {
-                                beveragesData.map(beverage => (
-                                    <AdditivesItem style={{background:"white", padding:"8px 12px 12px 12px"}}>
-                                        <div>
-                                            <img src={beverage.img}/>
-                                        </div>  
-                                        <AdditivesTitle>
-                                            {beverage.title} { beverage.tag && <span>{beverage.tag}</span> }
-                                        </AdditivesTitle>
-                                        <AdditivesPrice>
-                                            {beverage.price} AED
-                                        </AdditivesPrice>
-                                        <div className='d-flex align-items-center justify-content-between' style={{background:" rgba(222, 95, 90, 0.06)", borderRadius:6, width:71, height:24}}>
-                                            <AdditivesMinus style={{position:"relative", bottom:2}}>
-                                                <img src="images/minus.svg"/>
-                                            </AdditivesMinus>
-                                            <AdditivesCounter>
-                                                {beverage.counter}
-                                            </AdditivesCounter>
-                                            <AdditivesPlus style={{position:"relative", bottom:2}}>
-                                                <img src="images/plus.svg"/>
-                                            </AdditivesPlus>
-                                        </div>
-                                    </AdditivesItem>
-                                ))
-                            }
-                        </AddiviteSection>
-                    </div>
-                    <AdditivitePhone>
-                        <ModalAdditivesTitle>
-                            Do you want to add appetizers? 
-                        </ModalAdditivesTitle>
-                        <AddiviteSection className='d-flex justify-content-between'>
-                            {
-                                appetizersData.map(appetizer => (
-                                    <AdditivesItem style={{background:"white", padding:"8px 12px 12px 12px"}}>
-                                        <div>
-                                            <img src={appetizer.img}/>
-                                        </div>  
-                                        <AdditivesTitle>
-                                            {appetizer.title}  { appetizer.tag && <span>{appetizer.tag}</span> }
-                                        </AdditivesTitle>
-                                        <AdditivesPrice>
-                                            {appetizer.price} AED
-                                        </AdditivesPrice>
-                                        <div className='d-flex align-items-center justify-content-between' style={{background:" rgba(222, 95, 90, 0.06)", borderRadius:6, width:71, height:24}}>
-                                            <AdditivesMinus style={{position:"relative", bottom:2}}>
-                                                <img src="images/minus.svg"/>
-                                            </AdditivesMinus>
-                                            <AdditivesCounter>
-                                                {appetizer.counter}
-                                            </AdditivesCounter>
-                                            <AdditivesPlus style={{position:"relative", bottom:2}}>
-                                                <img src="images/plus.svg"/>
-                                            </AdditivesPlus>
-                                        </div>
-                                    </AdditivesItem>
-                                ))
-                            }
-                        </AddiviteSection>
-                    </AdditivitePhone>
+                    {
+                        additivesData.offered_items && additivesData.offered_items.map(addivites => (
+                            <div style={{marginBottom:20}}>
+                            <ModalAdditivesTitle>
+                                {addivites.name}
+                            </ModalAdditivesTitle>
+                            <AddiviteSection className='d-flex justify-content-between'>
+                                {
+                                    addivites.items.map(additive => (
+                                        <AdditivesItem style={{background:"white", padding:"8px 12px 12px 12px"}}>
+                                            <div>
+                                                <img src={additive.image} width={128}/>
+                                            </div>  
+                                            <AdditivesTitle>
+                                                {additive.name} { additive.tags.length > 0 && <span>{additive.tags[0]}</span> }
+                                            </AdditivesTitle>
+                                            <AdditivesPrice>
+                                                {additive.price} AED
+                                            </AdditivesPrice>
+                                            <div className='d-flex align-items-center justify-content-between' style={{background:" rgba(222, 95, 90, 0.06)", borderRadius:6, width:71, height:24}}>
+                                                <AdditivesMinus style={{position:"relative", bottom:2}} onClick={() => additiveCounterMinus(additive.id)}>
+                                                    <img src="images/minus.svg" />
+                                                </AdditivesMinus>
+                                                <AdditivesCounter>
+                                                    {additive.counter}
+                                                </AdditivesCounter>
+                                                <AdditivesPlus style={{position:"relative", bottom:2}} onClick={() => additiveCounterPlus(additive.id)}>
+                                                    <img src="images/plus.svg"/>
+                                                </AdditivesPlus>
+                                            </div>
+                                        </AdditivesItem>
+                                    ))
+                                }
+                            </AddiviteSection>
+                        </div>
+                        ))
+                    }
                     <ModalFooter className='d-flex'>
                         <div className='d-flex align-items-center justify-content-between' style={{background:" rgba(222, 95, 90, 0.06)", borderRadius:6, width:110, height:36, marginRight:12}}>
-                            <CounterMinus style={{position:"relative", bottom:1}} onClick={minusHandler}>
+                            <CounterMinus style={{position:"relative", bottom:1}} onClick={() => minusHandler(product.id)}>
                                 <img src="images/minus.svg" width={10}/>  
                             </CounterMinus>
                             <Counter>
-                                {counter}
+                                {product.counter}
                             </Counter>
-                            <CounterPlus style={{position:"relative", bottom:1}} onClick={() => setCounter(counter+1)}>
+                            <CounterPlus style={{position:"relative", bottom:1}} onClick={() => plusHandler(product.id)}>
                                 <img src="images/plus.svg" width={10}/>   
                             </CounterPlus>
                         </div>
@@ -604,22 +602,22 @@ const Card = ({product}) => {
                 </ModalContent>
             </Wrapper>    
         </ModalStyled>
-        <CardSection onClick={() => setIsModalVisible(true)}>
+        <CardSection onClick={() => openCardModal(product.id)}>
             <CardContent>
                 <div className='mb-3'>
-                    <img src={product.img} />
+                    <img src={product.image} width={273}/>
                 </div>
                 <CardHeader className='d-flex align-items-center mb-2'> 
                     <CardTitle style={{marginRight:12}}>
                         {product.name}
                     </CardTitle>
                     <CardTag>
-                        {product.tag}
+                        {product.tags && product.tags[0]}
                     </CardTag>
                 </CardHeader>
-                <CardDescr className='mb-3'>
+                {/* <CardDescr className='mb-3'>
                     {product.description}
-                </CardDescr>
+                </CardDescr> */}
                 <CardFooter className='d-flex align-items-center justify-content-between'>
                     <CardPrice>
                         {product.price} AED

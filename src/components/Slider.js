@@ -1,6 +1,8 @@
 import React, {useState} from 'react'
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import { createOrder } from '../http/cartAPI';
+import { useSelector } from 'react-redux';
 
 const InputStyled = styled.input`
     width:100%;
@@ -36,17 +38,20 @@ const Text = styled.div`
     z-index:1;
 `
 
-const Slider = () => {
+const Slider = ({orderInfo}) => {
     const [value, setValue] = useState(0);
+    const basket = useSelector(state => state.basket.basket);
 
     const navigate = useNavigate()
     const rangeHandler  = (e) => {
         setValue(e.target.value)
         if (e.target.value === "100"){
-            navigate("/order")            
+            navigate("/order")       
+            const submit = createOrder(basket.uuid, orderInfo)     
         }
     }
 
+    console.log(orderInfo);
 
 
   return (

@@ -4,6 +4,7 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { Modal} from 'react-bootstrap';
 import * as Scroll from 'react-scroll';
 import { Link, Element, Events, animateScroll as scroll, scrollSpy, scroller } from 'react-scroll'
+import { useSelector } from 'react-redux';
 
 
 const Container = styled.div`
@@ -138,6 +139,16 @@ a{
   border-radius: 6px;
   padding:8px 20px; 
 }
+span{
+  background: #DD052E;
+  border-radius:50%;
+  color:#fff;
+  font-weight:700;
+  padding:6px 8px 5px 8px;
+  position:relative;
+  bottom:15px;
+  right:15px;
+}
 `; 
 
 const Logo = styled.div`
@@ -211,6 +222,20 @@ const ModalLocation = styled.div`
 
 const ModalMap = styled.div``
 
+const MobileButton = styled.div`
+  span{
+    background: #DD052E;
+    border-radius:50%;
+    color:#fff;
+    font-weight:700;
+    padding:3px 5px 2px 5px;
+    font-size:12px;
+    position:relative;
+    bottom:10px;
+    right:10px;
+  }
+`
+
 const NavBar = () => {
   const [active, setActive] = useState("Shawarma");
   const [show, setShow] = useState(false);
@@ -220,6 +245,11 @@ const NavBar = () => {
   const handleShow = () => {
     setShow(true)
   }; 
+
+  const shopData = useSelector(state => state.products.products)
+  const basket = useSelector(state => state.basket.basket)
+
+
   return (
     <>
  
@@ -231,15 +261,11 @@ const NavBar = () => {
       </Logo>
       <Nav>
         <ul className='d-flex align-items-center'>
-          <li><Link activeClass='active' className='Shawarma' to='Shawarma' spy={true} offset={-180} duration={500}>Shawarma</Link></li>
-          <li><Link activeClass='active' className='Manakesh' to='Manakesh' spy={true}  offset={-180} duration={500}>Manakesh</Link></li>
-          <li><Link activeClass='active' className='Grills&Platters' to='Grills&Platters' spy={true}  offset={-180} duration={500}>Grills&Platters</Link></li>
-          <li><Link activeClass='active' className='Pizza' to='Pizza' spy={true}  offset={-180} duration={500}>Pizza</Link></li>
-          <li><Link activeClass='active' className='Sandwiches' to='Sandwiches' spy={true}  offset={-180} duration={500}>Sandwiches</Link></li>
-          <li><Link activeClass='active' className='Appetizers' to='Appetizers' spy={true}  offset={-180} duration={500}>Appetizers</Link></li>
-          <li><Link activeClass='active' className='Beverage' to='Beverage' spy={true}  offset={-180} duration={500}>Beverage</Link></li>
-          <li><Link activeClass='active' className='Juices' to='Juices' spy={true}  offset={-180} duration={500}>Juices</Link></li>
-          <li><Link activeClass='active' className='Coctails' to='Coctails' spy={true}  offset={-180} duration={500}>Coctails</Link></li>
+          {
+            shopData.results && shopData.results.map(item => (
+              <li><Link activeClass='active' className={item.name} to={item.name} spy={true} offset={-180} duration={500}>{item.name}</Link></li>
+            ))
+          }
         </ul> 
       </Nav>
       <div className='d-flex align-items-center' >
@@ -252,6 +278,7 @@ const NavBar = () => {
       </div>
       <Button>
         <NavLink to="/basket">My Busket</NavLink>   
+        <span>{basket.cart && basket.cart.items.length}</span>
       </Button>
     </Container>
     </Wrapper>
@@ -266,9 +293,10 @@ const NavBar = () => {
         <MobileTitle>
           <NavLink to="/"><img src="/images/logo.svg" width={100}/></NavLink>
         </MobileTitle>
-        <div>
-          <NavLink to="/basket"><img src="images/red-cart.png" /></NavLink>          
-        </div>
+        <MobileButton>
+          <NavLink to="/basket"><img src="images/red-cart.png" /></NavLink>      
+          <span>{basket.cart && basket.cart.items.length}</span>    
+        </MobileButton>
     </MobileHeader> 
       {
         location.pathname === "/" && <SecondNav style={{display:"none",paddingLeft:20}}>
@@ -276,15 +304,11 @@ const NavBar = () => {
           Category
         </SecondTitle>
         <ul className='d-flex align-items-center justify-content-between'>
-          <li className={active === "Shawarma" && "active"}><Link activeClass='active' className="Shawarma" to='Shawarma' onClick={() => setActive("Shawarma")}  spy={true} offset={-100} duration={500}>Shawarma</Link></li>
-          <li className={active === "Manakesh" && "active"}><Link activeClass='active' className='Manakesh'  onClick={() => setActive("Manakesh")} to='Manakesh' spy={true}  offset={-100} duration={500}>Manakesh</Link></li>
-          <li className={active === "Grills&Platters" && "active"} ><Link activeClass='active' className='Grills&Platters' onClick={() => setActive("Grills&Platters")} to='Grills&Platters' spy={true}  offset={-100} duration={500}>Grills&Platters</Link></li>
-          <li className={active === "Pizza" && "active"} > <Link activeClass='active' className='Pizza' onClick={() => setActive("Pizza")} to='Pizza' spy={true}  offset={-100} duration={500}>Pizza</Link></li>
-          <li className={active === "Sandwiches" && "active"} ><Link activeClass='active' onClick={() => setActive("Sandwiches")} className='Sandwiches' to='Sandwiches' spy={true}  offset={-100} duration={500}>Sandwiches</Link></li>
-          <li className={active === "Appetizers" && "active"} ><Link activeClass='active' className='Appetizers'  onClick={() => setActive("Appetizers")} to='Appetizers' spy={true}  offset={-100} duration={500}>Appetizers</Link></li>
-          <li className={active === "Beverage" && "active"}><Link activeClass='active'  onClick={() => setActive("Beverage")} className='Beverage' to='Beverage' spy={true}  offset={-100} duration={500}>Beverage</Link></li>
-          <li className={active === "Juices" && "active"} ><Link activeClass='active' className='Juices' onClick={() => setActive("Juices")} to='Juices' spy={true}  offset={-100} duration={500}>Juices</Link></li>
-          <li className={active === "Coctails" && "active"}><Link activeClass='active' onClick={() => setActive("Coctails")} className='Coctails' to='Coctails' spy={true}  offset={-100} duration={500}>Coctails</Link></li>
+        {
+            shopData.results && shopData.results.map(item => (
+              <li><Link activeClass='active' className={item.name} to={item.name} spy={true} offset={-180} duration={500}>{item.name}</Link></li>
+            ))
+          }
         </ul> 
       </SecondNav>
       }

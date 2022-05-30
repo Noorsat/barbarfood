@@ -1,6 +1,8 @@
 import React, {useState} from 'react';
 import { NavLink } from 'react-router-dom';
+import { Modal } from 'react-bootstrap';
 import styled from 'styled-components'
+import { Button, notification, Space } from 'antd';
 import BasketOverall from '../components/BasketOverall';
 
 const Container = styled.div`
@@ -102,6 +104,9 @@ const TypeButton = styled.div`
 
 const Inputs = styled.div`
     max-width:656px;
+    @media (max-width:475px){
+        margin-bottom:0!important;
+    }
 `
 
 const Select = styled.select`
@@ -130,6 +135,10 @@ const Select = styled.select`
         outline:none;
         padding:10px 0; 
     }
+    @media (max-width:475px){
+        width:100%;
+        margin-bottom:16px;
+    }
 `
 
 const Input = styled.input`
@@ -144,7 +153,11 @@ const Input = styled.input`
     color: #000000;
     padding:10px 20px;
     ::placeholder{
-        opacity:0.3
+        opacity:0.5
+    }
+    @media (max-width:475px){
+        width:100%!important;
+        margin-bottom:16px;
     }
 ` 
 
@@ -333,22 +346,96 @@ const MobileRecent = styled.div`
     margin-bottom:14px;
 `
 
+const ModalStyled = styled(Modal)`
+.modal-dialog {
+  position: fixed;
+  bottom: 0;
+  left: 0%;
+  right: 0%;
+  transform: translate(-50%, -50%);
+  margin:0;
+}
+.modal-content{
+  border:none;
+  border-radius: 16px 16px 0px 0px;
+}
+`
+
+const ModalTitle = styled.div`
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 24px;
+  letter-spacing: 0.01em;
+  color: #000000;
+  margin-bottom:16px;
+`
+
+const ModalLocation = styled.div`
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 21px;
+  color: #000000;
+  margin-bottom:16px;
+`
+
+const ModalMap = styled.div``
+
+const MobileButton = styled.div`
+  span{
+    background: #DD052E;
+    border-radius:50%;
+    color:#fff;
+    font-weight:700;
+    padding:3px 5px 2px 5px;
+    font-size:12px;
+    position:relative;
+    bottom:10px;
+    right:10px;
+  }
+`
+
+const Flat = styled.div`
+  @media (max-width:475px){
+      margin-right:15px;
+  }
+`
+const AdditionalInfo = styled.div`
+  @media (max-width:475px){
+        input{
+            padding-bottom:32px;
+        }
+    }
+`
+
+const ModalButton = styled.button`
+    background: #DD052E;
+    color:#fff;
+    font-weight:700;
+    width:100%;
+    border:none;
+    border-radius:5px;
+    padding:10px 0;
+    font-size:16px;
+`
 
 
 const Basket = () => {
   const [selectedType, setSelectedType] = useState("takeaway")
-  const [recentAdresses, setRecentAddresses] = useState([
-      {
-          street:"Almaty, Dostyk 180a",
-          isChoosen:false,
-          info:"Flat 30 / 2 floor / left flat"
-      },
-      {
-        street:"Almaty, Esenova 22",
-        isChoosen:false,
-        info:"Flat 12 / 9 floor / right flat"
-    }
-  ])
+  const [show, setShow] = useState(false);
+  const handleClose = () => setShow(false);
+  const handleShow = () => {
+    setShow(true)
+  }; 
+  const [recentAdresses, setRecentAddresses] = useState([])
+
+  const [addressItem, setAddressItem] = useState({
+      isChoosen:true,
+      city:"Sharjah",
+      address:"",
+      flat:"",
+      floor:"",
+      additional:""
+  })
 
   const [payment, setPayment] = useState([
       {
@@ -433,6 +520,7 @@ const Basket = () => {
       setRecentAddresses(recentAdresses.map(item => {
           if (item.street === street){
               item.isChoosen = true;
+              setOrderInfo({...orderInfo, address: `${item.city}, ${item.address}, ${item.floor}, ${item.flat}`})
           }else{
               item.isChoosen = false;
           }
@@ -444,6 +532,9 @@ const Basket = () => {
     setTime(time.map(item => {
         if (item.id === id){
             item.isChoosen = true;
+            setOrderInfo({...orderInfo, delivery: {
+                ...orderInfo.delivery, timeslot: item.time
+            }})
         }else{
             item.isChoosen = false;
         }
@@ -451,8 +542,100 @@ const Basket = () => {
     }))
   }
 
+  const openNotificationWithIcon = (type) => {
+    notification[type]({
+      message: 'Please fill all inputs'
+    });
+  };
+
+  const submitHandler = () => {
+      if (addressItem.city === "" || addressItem.flat === "" || addressItem.additional === "" || addressItem.address === "" || addressItem.floor === ""){
+        openNotificationWithIcon('error')
+      }else{
+      setRecentAddresses((recentAdresses => [...recentAdresses, addressItem].reverse().map((item, index) => {
+          if (index === 0){
+              item.isChoosen = true;
+          }else{
+              item.isChoosen = false;
+          }
+          return item;
+      })))
+      setAddressItem({
+        isChoosen:true,
+        city:"Sharjah",
+        address:"",
+        flat:"",
+        floor:"",
+        additional:""
+      })
+      setShow(false);
+      setOrderInfo({...orderInfo, address: `${addressItem.city}, ${addressItem.address}, ${addressItem.floor}, ${addressItem.flat}`})
+    } 
+  }
+
+  const [orderInfo, setOrderInfo] = useState(
+      {
+          payment_type:"",
+          address:"",
+          delivery: {
+              delivery_type: "",
+              timeslot:""
+          }
+      }
+  )
+
+  const paymentTypeHandler = (type) => {
+    if (type === "card"){
+        setOrderInfo({...orderInfo, payment_type: "by_cart"})
+    }else{
+        setOrderInfo({...orderInfo, payment_type:"by_cash"})
+    }
+  }
+
+  const selectedTypeHandler = (type) => {   
+      setSelectedType(type)
+      if (type === "delivery"){
+          setOrderInfo({...orderInfo, delivery: {
+              ...orderInfo.delivery, delivery_type: "delivery", timeslot: ""
+          }})
+      }else{ 
+          setOrderInfo({
+              ...orderInfo, address:"", delivery: {
+                  ...orderInfo.delivery, delivery_type: "take_away"
+              }
+          })
+      }
+  }
+
   return (
     <Container>
+        <ModalStyled show={show} onHide={handleClose}>  
+        <div style={{padding:"32px 20px 20px 20px"}}>
+        <ModalTitle>
+            Add new delivery address: 
+        </ModalTitle>
+        <Select required onChange={(e) => setAddressItem({...addressItem, city: e.target.value})} value={addressItem.city}>
+            <option selected disabled hidden>Choose city</option>
+            <option>Sharjah</option>
+            <option>Dubai</option>
+        </Select>   
+        <Input placeholder='Enter address' onChange={(e) => setAddressItem({...addressItem, address: e.target.value})} value={addressItem.address}/>   
+        <Inputs className='d-flex' style={{marginBottom:24}}> 
+            <Flat>
+                <Input placeholder='Flat №' style={{width:208}} className="me-3" onChange={(e) => setAddressItem({...addressItem, flat: e.target.value})} value={addressItem.flat}/>   
+            </Flat>   
+            <div>
+                <Input placeholder='Floor' style={{width:208}} className="me-3" onChange={(e) => setAddressItem({...addressItem, floor: e.target.value})} value={addressItem.floor}/>   
+            </div>   
+        </Inputs>
+        <AdditionalInfo>
+            <Input placeholder='Additional info' style={{width:208}} className="me-3" onChange={(e) => setAddressItem({...addressItem, additional: e.target.value})} value={addressItem.additional}/>   
+        </AdditionalInfo>
+        <ModalButton onClick={submitHandler}>
+            Submit
+        </ModalButton>
+        </div>
+      </ModalStyled>
         <Wrapper>
             <OrderType style={{maxWidth:656, marginRight:139,}}>
             <NavLink to="/">
@@ -479,13 +662,13 @@ const Basket = () => {
                         <TypeButton className='active'>
                             Take away
                         </TypeButton>
-                        <TypeButton onClick={() => setSelectedType("delivery")}>
+                        <TypeButton onClick={() => selectedTypeHandler("delivery")}>
                             Delivery
                         </TypeButton>
                         </>
                         : 
                         <>
-                            <TypeButton onClick={() => setSelectedType("takeaway")}>
+                            <TypeButton onClick={() => selectedTypeHandler("takeaway")}>
                                 Take away
                             </TypeButton>
                             <TypeButton className='active'>
@@ -504,33 +687,36 @@ const Basket = () => {
                         </DeliveryTitle>
                         <Inputs className="d-flex mb-3">
                             <div className='me-3'>
-                                <Select required>
+                                <Select required onChange={(e) => setAddressItem({...addressItem, city: e.target.value})} value={addressItem.city}>
                                     <option selected disabled hidden>Choose city</option>
-                                    <option>Almaty</option>
-                                    <option>Nur-Sultan</option>
+                                    <option value="Sharjah">Sharjah</option>
+                                    <option value="Dubai">Dubai</option>
                                 </Select>   
                             </div>   
                             <div>
-                                <Input placeholder='Enter address'/>   
+                                <Input placeholder='Enter address' onChange={(e) => setAddressItem({...addressItem, address: e.target.value})} value={addressItem.address}/>   
                             </div>                            
                         </Inputs>
                         <Inputs className='d-flex' style={{marginBottom:24}}>
                             <div>
-                                <Input placeholder='Flat №' style={{width:208}} className="me-3" />   
+                                <Input placeholder='Flat №' style={{width:208}} className="me-3" onChange={(e) => setAddressItem({...addressItem, flat: e.target.value})} value={addressItem.flat}/>   
                             </div>   
                             <div>
-                                <Input placeholder='Floor' style={{width:208}} className="me-3" />   
+                                <Input placeholder='Floor' style={{width:208}} className="me-3" onChange={(e) => setAddressItem({...addressItem, floor: e.target.value})} value={addressItem.floor}/>   
                             </div>   
                             <div>
-                                <Input placeholder='Additional info' style={{width:208}} className="me-3" />   
+                                <Input placeholder='Additional info' style={{width:208}} className="me-3" onChange={(e) => setAddressItem({...addressItem, additional: e.target.value})} value={addressItem.additional}/>   
                             </div>   
                         </Inputs>
+                        <ModalButton style={{width:"100%"}} className="mb-4" onClick={submitHandler}>
+                            Submit
+                        </ModalButton>
                         </DeliverySection>
                         <Recents>
                             {
                                 window.screen.width <= 475
                                 &&
-                                <MobileRecent className='d-flex justify-content-between'>
+                                <MobileRecent className='d-flex justify-content-between' onClick={handleShow}>
                                     <MobileRecentTitle>
                                         Add new delivery address
                                     </MobileRecentTitle>
@@ -540,7 +726,7 @@ const Basket = () => {
                                 </MobileRecent>
                             }
                             {
-                                recentAdresses.map(item => {
+                                recentAdresses && recentAdresses.map(item => {
                                     return (
                                         <RecentItem onClick={() => chooseHandler(item.street)}>
                                             <RecentAddress className='d-flex mb-3'>
@@ -548,11 +734,11 @@ const Basket = () => {
                                                     <Checkbox type="checkbox" checked={item.isChoosen}  style={{ opacity: item.isChoosen ? "1.0" : "0.3" }}/> 
                                                 </div>
                                                 <RecentAddressTitle style={{ opacity: item.isChoosen ? "1.0" : "0.5" }}>
-                                                    {item.street}
+                                                    {item.city}, {item.address}
                                                 </RecentAddressTitle>
                                             </RecentAddress>
                                             <RecentDetails>
-                                                {item.info}
+                                                Flat {item.flat} / {item.floor} floor / {item.additional}
                                             </RecentDetails>
                                         </RecentItem>
                                         )
@@ -586,7 +772,7 @@ const Basket = () => {
                                 {
                                     payment.map(item => (
                                         <Payment>
-                                            <Radio type="radio" id={item.type} name="payment" value={item.type} style={{marginRight:15}} />
+                                            <Radio type="radio" id={item.type} name="payment" value={item.type} style={{marginRight:15}} onChange={() => paymentTypeHandler(item.type)}/>
                                             <Label for={item.type}>{item.text}</Label>
                                         </Payment>
                                     ))
@@ -595,7 +781,7 @@ const Basket = () => {
                         </PaymentSection>
             </OrderType>
             <div>
-                <BasketOverall />
+                <BasketOverall orderInfo={orderInfo}/>
             </div>
         </Wrapper>
     </Container>

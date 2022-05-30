@@ -75,17 +75,17 @@ const BasketStatistcs = styled.div`
 `
 
 
-const BasketOverall = () => {
+const BasketOverall = ({orderInfo}) => {
   const basket = useSelector(state => state.basket.basket)
-  console.log(basket)
+
   return (
     <BasketWrapper>
         <BasketTitle>
             Your Order:  
         </BasketTitle>
         <div style={{borderBottom: "1px solid #F5F6F7"}}>
-          { basket &&
-            basket.map(item => (
+          { basket.items &&
+            basket.items.map(item => (
               <BasketProduct img={item.img} name={item.name} descr={item.description} price={item.price} counter={item.counter}/>
             ))
           }
@@ -116,7 +116,7 @@ const BasketOverall = () => {
             </SaleResult>
           </div>
         <BasketTotal />
-        <Slider />
+        <Slider orderInfo={orderInfo}/>
         </BasketStatistcs>
     </BasketWrapper>
   )

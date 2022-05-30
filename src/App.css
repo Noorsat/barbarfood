@@ -31,3 +31,6 @@
         border-radius:0px!important;
     }
 }
+.ant-notification{
+    z-index:100000000!important;
+}

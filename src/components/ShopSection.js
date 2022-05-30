@@ -4,6 +4,7 @@ import { useHistory, useNavigate } from "react-router-dom";
 import Card from './Card';
 import * as Scroll from 'react-scroll';
 import { Link, Element, Events, animateScroll as scroll, scrollSpy, scroller } from 'react-scroll'
+import { useSelector } from 'react-redux';
 
 const Container = styled.div`
     max-width:1376px;
@@ -49,7 +50,7 @@ const SeeAll = styled.div`
 
 `
 
-const ShopSection = ({shopData, setSelectedProducts}) => {
+const ShopSection = ({setSelectedProducts}) => {
     const navigate = useNavigate();
     const seeAllHandler = (item) => {
         scroll.scrollToTop({
@@ -60,13 +61,15 @@ const ShopSection = ({shopData, setSelectedProducts}) => {
         navigate("/type")
     }
 
+    const shopData = useSelector(state => state.products.products);
+
     return (
-        shopData.map(item => (
-            <Element name={item.title}>
+        shopData.results && shopData.results.map(item => (
+            <Element name={item.name}>
                 <Container>
                     <div className='d-flex justify-content-between'>
                         <Title>
-                            {item.title}
+                            {item.name}
                         </Title>  
                         <SeeAll onClick={() => seeAllHandler(item)} style={{display:"none"}}>
                             See all
@@ -74,7 +77,7 @@ const ShopSection = ({shopData, setSelectedProducts}) => {
                     </div>
                     <CardSection className='d-flex justify-content-between flex-wrap' >
                         {
-                            item.data.map(product => (
+                            item.items.map(product => (
                                 <Card product={product}/>
                             ))
                         }
