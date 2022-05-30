@@ -408,9 +408,6 @@ const Card = ({product}) => {
                 }
             })
         }) 
-        const token = getToken(basket.uuid).then((res) => {
-            console.log(res)
-        });
         setIsModalVisible(false);
         scroll.scrollToTop({
             duration: 100,

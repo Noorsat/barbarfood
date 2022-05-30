@@ -1,8 +1,7 @@
-FROM node
+FROM node:14-alpine AS development
 ENV NODE_ENV development
 WORKDIR /app
 COPY package.json .
-COPY npm.lock .
 RUN npm install
 COPY . . 
 EXPOSE 3000
