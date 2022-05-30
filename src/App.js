@@ -15,6 +15,7 @@ import { fetchProducts } from './redux/actions/productsActions';
 import { createBasket } from './redux/actions/basketActions';
 
 const App = () => {
+  
   const [token, setToken] = useState({});
   const [selectedProducts, setSelectedProducts] = useState({})  
 
