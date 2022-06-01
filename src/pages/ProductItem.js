@@ -112,6 +112,7 @@ const ProductWrapper = styled.div`
 `
 
 const ProductItem = ({selectedProducts}) => {
+    console.log(selectedProducts);
   return (
     <div style={{padding:"0 20px"}}>
         <Title className='mb-3'>
@@ -119,10 +120,10 @@ const ProductItem = ({selectedProducts}) => {
         </Title>
         <div>
           {
-            selectedProducts.data.map(product => (
+            selectedProducts.items && selectedProducts.items.map(product => (
               <ProductWrapper className='d-flex align-items-center' >
               <div className='me-3'>
-                    <img src={product.img} width={121}/>
+                    <img src={product.image} width={121}/>
                 </div>
               <div>
                   <CardHeader className='d-flex align-items-center mb-2'> 

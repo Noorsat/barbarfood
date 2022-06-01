@@ -29,7 +29,7 @@ const App = () => {
       dispatch(fetchProducts({...res.data.data, results: res.data.data.results.map(category => {
         return {...category, items: category.items.map(product => {
           return {...product, counter:1}
-      })}})}))})
+    })}})}))})
   }, [])
 
 

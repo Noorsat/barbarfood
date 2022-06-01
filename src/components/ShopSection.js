@@ -27,8 +27,9 @@ const Title = styled.div`
 `
 
 const CardSection = styled.div`
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
     @media (max-width:475px){
-        
         padding-bottom:6px;
         padding-left:6px;
         paddint-top:6px;
@@ -75,7 +76,7 @@ const ShopSection = ({setSelectedProducts}) => {
                             See all
                         </SeeAll>
                     </div>
-                    <CardSection className='d-flex justify-content-between flex-wrap' >
+                    <CardSection>
                         {
                             item.items.map(product => (
                                 <Card product={product}/>

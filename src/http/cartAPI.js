@@ -3,12 +3,19 @@ import { myAxios } from "."
 export const addToCart = async (token, data) => {
     const headers = {
         session: token,
-        "Access-Control-Allow-Origin":"*",
-        "Access-Control-Allow-Methods":"GET,HEAD,OPTIONS,POST,PUT",
-        "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept, x-client-key, x-client-token, x-client-secret, Authorization"
+        'Content-Type': 'application/json;charset=UTF-8',
+        "Access-Control-Allow-Origin": "*",
+
     } 
     const response = await myAxios.post("/api/cart", data, {
         headers: headers,
+    },
+    {
+        mode:"no-cors"
+    }).then((res) => {
+        console.log("Response received: ", res )
+    }).catch((err)  => {
+        console.log("AXIOS ERROR: ", err)
     })
     return response
 }

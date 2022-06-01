@@ -374,7 +374,6 @@ const Card = ({product}) => {
 
     const basket = useSelector(state => state.basket.basket)
 
-
     const handleOk = () => {
         setIsModalVisible(false);
       };
@@ -469,6 +468,8 @@ const Card = ({product}) => {
         })})
     }
 
+    console.log(additivesData);
+
   return (
       <>
         <ConfirmModal
@@ -554,7 +555,7 @@ const Card = ({product}) => {
                                     addivites.items.map(additive => (
                                         <AdditivesItem style={{background:"white", padding:"8px 12px 12px 12px"}}>
                                             <div>
-                                                <img src={additive.image} width={128}/>
+                                                <img src={process.env.REACT_APP_API_URL + additive.image} width={128}/>
                                             </div>  
                                             <AdditivesTitle>
                                                 {additive.name} { additive.tags.length > 0 && <span>{additive.tags[0]}</span> }
