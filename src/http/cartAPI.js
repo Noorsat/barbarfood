@@ -8,7 +8,7 @@ export const addToCart = async (token, data) => {
 
     } 
     const response = await myAxios.post("/api/cart", data, {
-        headers: headers,
+        headers: headers,      
     },
     {
         mode:"no-cors"
