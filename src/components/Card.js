@@ -392,10 +392,12 @@ const Card = ({product}) => {
             }    
         ).then((res) => {
             console.log(res);
+        }).catch((err)  => {
+        console.log("BASKET ERROR: ", err)
         })
         } catch(e) {
             console.log(e);
-        }
+        } 
         additivesData.offered_items.map(category => {
             category.items.map(product => {
                 if (product.counter >= 1){
