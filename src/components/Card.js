@@ -470,8 +470,6 @@ const Card = ({product}) => {
         })})
     }
 
-    console.log(additivesData);
-
   return (
       <>
         <ConfirmModal

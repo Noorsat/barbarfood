@@ -92,8 +92,8 @@ const BasketOverall = ({orderInfo}) => {
             Your Order:  
         </BasketTitle>
         <div style={{borderBottom: "1px solid #F5F6F7"}}>
-          { products.cart.items &&
-            products.cart.items.map(item => (
+          { products?.cart?.items &&
+            products?.cart?.items.map(item => (
               <BasketProduct name={item.name} price={item.price} counter={item.count}/>
             ))
           }
