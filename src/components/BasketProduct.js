@@ -53,19 +53,19 @@ const Wrapper = styled.div`
 `
 
 
-const BasketProduct = ({img,name,descr,price,counter}) => {
+const BasketProduct = ({name,price,counter}) => {
   return (
     <Wrapper className='d-flex align-items-center' style={{paddingBottom:20}}>
-        <div style={{marginRight:20}}>  
+        {/* <div style={{marginRight:20}}>  
             <img src={img} width={140}/>
-        </div>   
+        </div>    */}
         <div>
             <Title>
                 {name}
             </Title>
-            <Text>
+            {/* <Text>
                 {descr}
-            </Text>
+            </Text> */}
             <div className='d-flex justify-content-between'>
                 <Price>
                     {price} AED

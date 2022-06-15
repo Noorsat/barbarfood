@@ -1,7 +1,8 @@
 import { Card } from 'antd';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components'
+import { getToken } from '../http/userAPI';
 import BasketProduct from './BasketProduct';
 import BasketTotal from './BasketTotal';
 import Slider from './Slider';
@@ -77,6 +78,13 @@ const BasketStatistcs = styled.div`
 
 const BasketOverall = ({orderInfo}) => {
   const basket = useSelector(state => state.basket.basket)
+  const [products, setProducts] = useState([]);
+  
+  useEffect(() => {
+    const product = getToken(basket.uuid).then(res => {
+      setProducts(res.data.data);
+    })
+  }, [])
 
   return (
     <BasketWrapper>
@@ -84,9 +92,9 @@ const BasketOverall = ({orderInfo}) => {
             Your Order:  
         </BasketTitle>
         <div style={{borderBottom: "1px solid #F5F6F7"}}>
-          { basket.items &&
-            basket.items.map(item => (
-              <BasketProduct img={item.img} name={item.name} descr={item.description} price={item.price} counter={item.counter}/>
+          { products.cart.items &&
+            products.cart.items.map(item => (
+              <BasketProduct name={item.name} price={item.price} counter={item.count}/>
             ))
           }
         </div>

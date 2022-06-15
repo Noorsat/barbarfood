@@ -17,7 +17,6 @@ export const addToCart = async (token, data) => {
 export const createOrder = async (token,data) => {
     const headers = {
         session: token,
-        'Content-Type': 'text/plain'
     }
     const response = await myAxios.post("/api/order", data,  {
         headers:headers
